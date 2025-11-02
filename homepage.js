@@ -15,6 +15,10 @@ const mouse_ball = { x:0, y:0, vx:0, vy:0, r:0, type:'mouse' };
 const shootingStars = [];
 const SHOOT_CHANCE = 0.2; // High chance for fast appearance
 
+// 🔹 Line speed control (same on mobile and PC)
+let baseSpeed = 0.5;
+let lineSpeed = baseSpeed * (window.innerWidth < 768 ? 0.4 : 1);
+
 // Utility
 function randomNum(min,max){ return Math.random()*(max-min)+min; }
 function randomSidePos(len){ return Math.random()*len; }
@@ -106,7 +110,8 @@ function renderLines(){
 function updateBalls(){
     const new_balls = [];
     balls.forEach(b=>{
-        b.x+=b.vx; b.y+=b.vy;
+        b.x += b.vx * lineSpeed;
+        b.y += b.vy * lineSpeed;
         if(b.x>-50 && b.x<can_w+50 && b.y>-50 && b.y<can_h+50) new_balls.push(b);
         b.phase+=0.03;
         b.alpha=Math.abs(Math.cos(b.phase));
@@ -181,60 +186,53 @@ canvas.addEventListener('mousemove',(e)=>{mouse_ball.x=e.pageX; mouse_ball.y=e.p
 window.addEventListener('resize',()=>{
     can_w = canvas.width = window.innerWidth;
     can_h = canvas.height = window.innerHeight;
+    lineSpeed = baseSpeed * (window.innerWidth < 768 ? 0.4 : 1); // update speed on resize
 });
 
 // Init
 initBalls(BALL_NUM);
 requestAnimationFrame(render);
 
+
+// Typing Effect
 document.addEventListener("DOMContentLoaded", () => {
   const typed = new Typed("#typed", {
-    strings: [
-      "GAME DEVELOPER"
-    ],
-    typeSpeed: 90,   // Speed of typing
-    backSpeed: 50,   // Speed of erasing
-    startDelay: 500, // Delay before typing starts
-    backDelay: 1000, // Pause before erasing
-    loop: true,      // Keep repeating
+    strings: ["GAME DEVELOPER"],
+    typeSpeed: 90,
+    backSpeed: 50,
+    startDelay: 500,
+    backDelay: 1000,
+    loop: true,
     showCursor: true,
-    cursorChar: "|"  // Cursor style
-    
+    cursorChar: "|"
   });
 });
 
-// ===== Infinite Loop Auto Slide for Projects =====
+// Infinite Loop Auto Slide for Projects
 document.addEventListener("DOMContentLoaded", () => {
   const slider = document.querySelector(".projects-slider");
   if (!slider) return;
 
-  let scrollSpeed = 1; // pixels per frame
+  let scrollSpeed = 1;
   let cloneWidth = 0;
 
-  // Duplicate all cards for smooth looping
   const clone = slider.innerHTML;
   slider.innerHTML += clone;
 
-  // Calculate total width of one set
   cloneWidth = slider.scrollWidth / 2;
 
   function autoScroll() {
     slider.scrollLeft += scrollSpeed;
-
-    // Reset when reaching half width (end of first set)
     if (slider.scrollLeft >= cloneWidth) {
       slider.scrollLeft = 0;
     }
-
     requestAnimationFrame(autoScroll);
   }
 
   autoScroll();
 });
 
-// my project
-
-// projects.js — draggable looping carousel (center-snap)
+// Carousel
 document.addEventListener("DOMContentLoaded", () => {
   const viewport = document.querySelector('.carousel-viewport');
   const track = document.querySelector('.carousel-track');
@@ -242,14 +240,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!track || cards.length === 0) return;
 
   let current = 0;
-  const cardWidth = cards[0].getBoundingClientRect().width + 40; // card width + margin
+  const cardWidth = cards[0].getBoundingClientRect().width + 40;
   const total = cards.length;
 
   function clampIndex(i) {
     return ((i % total) + total) % total;
   }
 
-  // center translate calc
   function computeCenterTranslate(index) {
     const centerX = viewport.clientWidth / 2 - (cards[0].offsetWidth / 2);
     return centerX - index * cardWidth;
@@ -282,7 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCardClasses();
   }
 
-  // Drag/swipe handling
   let dragging = false, startX = 0, lastTranslate = 0;
 
   const getTrackTranslate = () => {
@@ -317,10 +313,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (dx < -threshold) next();
     else if (dx > threshold) prev();
-    else updateCardClasses(); // snap back
+    else updateCardClasses();
   }
 
-  // events
   track.addEventListener('mousedown', pointerDown);
   window.addEventListener('mousemove', pointerMove);
   window.addEventListener('mouseup', pointerUp);
@@ -330,10 +325,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener('resize', () => updateCardClasses(true));
 
-  // init
   current = 0;
   updateCardClasses(true);
 });
-
-
-
